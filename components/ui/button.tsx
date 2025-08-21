@@ -10,6 +10,7 @@ interface Props {
   variant?: "outlined" | "contained";
   className?: string;
   full?: boolean;
+  form?: string;
 }
 
 const Button = ({
@@ -21,6 +22,7 @@ const Button = ({
   variant = "contained",
   className,
   full = false,
+  form
 }: Props) => {
   const variants = {
     contained: {
@@ -37,6 +39,7 @@ const Button = ({
   return (
     <Cell
       type={type}
+      form={form}
       sx={{
         height: 44,
         width: full ? "100%" : "auto",

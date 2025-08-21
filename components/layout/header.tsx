@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -6,7 +5,7 @@ import { BiLogOut, BiUser } from "react-icons/bi";
 
 const navItems = [
   { label: "Asosiy", href: "/" },
-  { label: "Talabalar", href: "/students" },
+  { label: "Talabalar", href: "/edu-years" },
 //   { label: "O‘quv yillari", href: "/yillar" },
 ];
 
@@ -36,7 +35,7 @@ export default function Header() {
         {/* Navigation */}
         <nav className="flex gap-6">
           {navItems.map((item, idx) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === "/" ? pathname === item?.href : pathname.startsWith(item?.href) && item?.href !== "/";
             return (
               <motion.div
                 key={item.href}

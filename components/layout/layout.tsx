@@ -1,5 +1,4 @@
 import React from "react";
-import Login from "../login/login";
 import Header from "./header";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
