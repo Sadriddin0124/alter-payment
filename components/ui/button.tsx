@@ -7,7 +7,7 @@ interface Props {
   loading?: boolean;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "outlined" | "contained";
+  variant?: "outlined" | "contained" | "destructive";
   className?: string;
   full?: boolean;
   form?: string;
@@ -35,6 +35,11 @@ const Button = ({
       color: "#414651",
       borderColor: "#D5D7DA",
     },
+    destructive: {
+      background: "#EB5757",
+      color: "#fff",
+      borderColor: "#EB5757",
+    }
   };
   return (
     <Cell
@@ -55,7 +60,7 @@ const Button = ({
       }}
       onClick={onClick}
       disabled={disabled}
-      variant={variant}
+      variant={variant === "outlined" ? "outlined" : "contained"}
       className={className}
       loading={loading}
     >

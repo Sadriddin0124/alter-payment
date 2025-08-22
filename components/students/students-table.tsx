@@ -11,11 +11,14 @@ import {
 } from "@mui/material";
 import Typography from "../ui/typography";
 import Search from "../ui/inputs/search";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Badge from "../ui/badge";
 import MyCheckbox from "../ui/checkbox";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/router";
+import { IPaginatedStudent, IStudentList } from "@/lib/types/student.types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchStudents } from "@/lib/actions/students.action";
 
 const data = [
   {
@@ -44,9 +47,16 @@ const data = [
   },
 ];
 
-export default function StudentsTable() {
-  const router = useRouter()
+interface Props {
+  page: number;
+  setPage: Dispatch<SetStateAction<number>>;
+}
+
+export default function StudentsTable({ page, setPage }: Props) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
+  const [students, setStudents] = useState<IStudentList[]>([]);
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
   const { control, watch } = useFormContext();
   const { append, remove } = useFieldArray({
@@ -55,6 +65,58 @@ export default function StudentsTable() {
   });
 
   const selected = watch("selectedStudents") || [];
+
+  const id = router.query.id;
+
+  const filterData = useMemo(() => {
+    return { page, search, page_size: 10 };
+  }, [search, page]);
+
+  const { data: studentsData, isFetching } = useQuery<IPaginatedStudent>({
+    queryKey: ["students", page, id, Object.values(filterData)],
+    queryFn: () => fetchStudents(Number(id), filterData),
+  });
+
+  useEffect(() => {
+    if (search) {
+      setPage(1); // Reset page to 1 when search changes
+      setStudents([]); // Clear students when search changes
+    }
+  }, [search, setPage]);
+
+  const hasNextPage = studentsData?.next;
+
+  useEffect(() => {
+    if (studentsData?.results) {
+      if (page === 1) {
+        setStudents(studentsData?.results);
+      } else {
+        setStudents((prev) => [...prev, ...studentsData.results]);
+      }
+    }
+  }, [studentsData, page]);
+
+  const loadMoreStudents = useCallback(() => {
+    if (!hasNextPage || isFetching) return;
+    setPage((prevPage: number) => prevPage + 1);
+  }, [hasNextPage, isFetching, setPage]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreStudents();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loadMoreStudents]);
 
   const toggleStudent = (id: number) => {
     const exists = selected.find((s: { id: number }) => s.id === id);
@@ -99,22 +161,24 @@ export default function StudentsTable() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: "bold" }}>
-                <MyCheckbox
-                  value={isAllChecked}
-                  onChange={toggleAll}
-                />
+                <MyCheckbox value={isAllChecked} onChange={toggleAll} />
               </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>T/R</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Ism va Familiya</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Telefon raqami</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>JSHSHIR</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Kontrakt summasi</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                Kontrakt summasi
+              </TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Toʻlangan summa</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {data.map((student, idx) => {
-              const isChecked = selected.some((s: { id: number }) => s.id === student.id);
+            {students?.map((student, idx) => {
+              const isChecked = selected.some(
+                (s: { id: number }) => s.id === student.id
+              );
               return (
                 <motion.tr
                   key={student.id}
@@ -122,19 +186,25 @@ export default function StudentsTable() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
                   className="cursor-pointer"
-                  onClick={() => router.push(`/edu-years/info?id=${student.id}`)}
+                  onClick={() =>
+                    router.push(`/edu-years/info?id=${student.id}`)
+                  }
                 >
-                  <TableCell sx={{ width: 24 }} onClick={(e) => e.stopPropagation()}>
+                  <TableCell
+                    sx={{ width: 24 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <MyCheckbox
                       value={isChecked}
                       onChange={() => toggleStudent(student.id)}
                     />
                   </TableCell>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.phone}</TableCell>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{student.full_name}</TableCell>
+                  <TableCell>{student.phone_number || "-"}</TableCell>
                   <TableCell>{student.jshshir}</TableCell>
                   <TableCell>{student.contract}</TableCell>
-                  <TableCell>{student.paid}</TableCell>
+                  <TableCell>-</TableCell>
                 </motion.tr>
               );
             })}

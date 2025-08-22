@@ -2,6 +2,8 @@
 
 import MessageField from "@/components/students/message-field";
 import StudentsTable from "@/components/students/students-table";
+import UploadContract from "@/components/students/upload-contract";
+import UploadStudents from "@/components/students/upload-student";
 import Button from "@/components/ui/button";
 import Typography from "@/components/ui/typography";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,8 +12,6 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { BsSend } from "react-icons/bs";
 import { FaArrowLeft } from "react-icons/fa6";
-import { FiUpload } from "react-icons/fi";
-import { LuCreditCard } from "react-icons/lu";
 
 interface IStudentForm {
   selectedStudents: { id: number }[];
@@ -24,6 +24,7 @@ const fadeSlide = {
 };
 
 const Students = () => {
+  const [page, setPage] = React.useState(1);
   const router = useRouter();
   const methods = useForm<IStudentForm>({
     defaultValues: { selectedStudents: [] },
@@ -63,14 +64,8 @@ const Students = () => {
                 className="flex gap-4"
                 {...fadeSlide}
               >
-                <Button variant="outlined">
-                  <FiUpload className="mr-2" size={20} />
-                  Talabalarni yuklash
-                </Button>
-                <Button variant="outlined">
-                  <LuCreditCard className="mr-2" size={20} />
-                  Toʻlovlarni yuklash
-                </Button>
+                <UploadStudents/>
+                <UploadContract/>
               </motion.div>
             ) : (
               <motion.div key="sendBtn" {...fadeSlide}>
@@ -106,7 +101,7 @@ const Students = () => {
             transition={{ duration: 0.3 }}
             className="flex-1"
           >
-            <StudentsTable />
+            <StudentsTable page={page} setPage={setPage} />
           </motion.div>
         </form>
       </FormProvider>

@@ -3,22 +3,34 @@
 import { useForm, Controller } from "react-hook-form";
 import Button from "../ui/button";
 import Input from "../ui/inputs/input";
-
-type LoginFormInputs = {
-  phone: string;
-  password: string;
-};
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/lib/actions/auth.action";
+import { useRouter } from "next/router";
+import { ILogin } from "@/lib/types/auth.types";
 
 export default function LoginCard() {
-  const { control, handleSubmit } = useForm<LoginFormInputs>({
+  const router = useRouter();
+  const { control, handleSubmit, formState: { errors } } = useForm<ILogin>({
     defaultValues: {
-      phone: "",
+      phone_number: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: LoginFormInputs) => {
-    console.log("Login data:", data);
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+      router.push("/edu-years");
+    },
+    onError: (error) => {
+      console.error("Login error:", error);
+    },
+  });
+
+  const onSubmit = (data: ILogin) => {
+    mutate({...data, phone_number: data?.phone_number?.replace(/\D/g, '')});
   };
 
   return (
@@ -37,15 +49,18 @@ export default function LoginCard() {
             Telefon raqam
           </label>
           <Controller
-            name="phone"
+            name="phone_number"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="tel"
-              />
-            )}
+            rules={{ required: "Telefon raqamni kiriting" }}
+            render={({ field }) => <Input {...field} type="tel" />}
           />
+          {
+            errors.phone_number && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.phone_number.message}
+              </p>
+            )
+          }
         </div>
 
         {/* Parol */}
@@ -56,14 +71,20 @@ export default function LoginCard() {
           <Controller
             name="password"
             control={control}
-            render={({ field }) => (
-              <Input {...field} type="password" />
-            )}
+            rules={{ required: "Parolni kiriting" }}
+            render={({ field }) => <Input {...field} type="password" />}
           />
+          {
+            errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )
+          }
         </div>
 
         {/* Submit button */}
-        <Button full variant="contained" type="submit">
+        <Button full variant="contained" type="submit" loading={isPending}>
           Kirish
         </Button>
       </form>

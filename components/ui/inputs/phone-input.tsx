@@ -64,7 +64,7 @@ const PhoneInput = ({
     if (formatted !== inputValue) {
       setInputValue(formatted);
     }
-  }, [value]);
+  }, [value, inputValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawInput = e.target.value;
@@ -93,7 +93,7 @@ const PhoneInput = ({
         className="w-full h-full outline-none"
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        aria-describedby="phone-hint"
+        // aria-describedby="phone-hint"
         style={{
           ...styles,
           paddingLeft: "0.5rem",
