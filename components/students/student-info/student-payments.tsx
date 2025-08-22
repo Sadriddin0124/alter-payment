@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchStudentPayment } from "@/lib/actions/students.action";
 import { formatCurrency } from "@/lib/utils";
 import {
   Table,
@@ -9,9 +10,8 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-
-
 
 const payments = [
   {
@@ -40,21 +40,25 @@ const payments = [
   },
 ];
 
-
 export default function StudentPayments() {
+  const { data: payments } = useQuery({
+    queryKey: ["payments"],
+    queryFn: () => fetchStudentPayment({}),
+  });
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full" 
+      className="w-full"
     >
       {/* Right table */}
       <div className="md:col-span-2 shadow rounded-xl border border-gray-200 min-h-[600px] overflow-hidden">
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{maxHeight: 44}}>
+              <TableRow sx={{ maxHeight: 44 }}>
                 <TableCell sx={{ fontWeight: "bold" }}>
                   To’lanishi kerak
                 </TableCell>

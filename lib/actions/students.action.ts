@@ -7,3 +7,10 @@ export const fetchStudents = async (id: number, filters: IFilterType) => {
     const response = await $api.get(`/students/year/${id}/?${params}`);
     return response.data;
 };
+
+// payment
+export const fetchStudentPayment = async ( filters: IFilterType) => {
+    const params = getFilterUrl(filters);
+    const response = await $api.get(`/payment/?${params}`);
+    return response.data;
+};

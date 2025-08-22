@@ -1,11 +1,12 @@
-import React from 'react'
+import Typography from "@/components/ui/typography";
+import React from "react";
 
 const Dashboard = () => {
   return (
-    <div>
-      
+    <div className="flex flex-col gap-8 pt-4">
+      <Typography variant="h1">Asosiy</Typography>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
