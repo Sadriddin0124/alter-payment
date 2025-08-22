@@ -124,7 +124,7 @@ export default function StudentsTable() {
                   className="cursor-pointer"
                   onClick={() => router.push(`/edu-years/info?id=${student.id}`)}
                 >
-                  <TableCell sx={{ width: 24 }}>
+                  <TableCell sx={{ width: 24 }} onClick={(e) => e.stopPropagation()}>
                     <MyCheckbox
                       value={isChecked}
                       onChange={() => toggleStudent(student.id)}
