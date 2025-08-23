@@ -14,15 +14,9 @@ import { updateStudentPayment } from "@/lib/actions/students.action";
 import { queryClient } from "@/components/providers/react-query-provider";
 import { toast } from "sonner";
 
-interface Form {
-  split_count: string;
-  contract: string;
-}
-
 interface Props {
   contract: number;
   data: IStudentPayments
-  
 }
 
 const PaymentSettings = ({ contract, data }: Props) => {
