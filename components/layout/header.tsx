@@ -1,16 +1,9 @@
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+  import { motion } from "framer-motion";
 import { BiLogOut, BiUser } from "react-icons/bi";
-
-const navItems = [
-  { label: "Asosiy", href: "/" },
-  { label: "Talabalar", href: "/edu-years" },
-//   { label: "O‘quv yillari", href: "/yillar" },
-];
+import Logo from "@/public/images/logo.jpg"
+import Image from "next/image";
 
 export default function Header() {
-  const pathname = usePathname();
 
   return (
     <motion.header
@@ -27,41 +20,9 @@ export default function Header() {
           transition={{ delay: 0.2 }}
           className="flex items-center"
         >
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-            <span className="text-[#4C5CA8] font-bold">◎</span>
-          </div>
+          <Image src={Logo} alt="logo" width={50} height={50} className="w-12 h-12 rounded-full" />
         </motion.div>
 
-        {/* Navigation */}
-        <nav className="flex gap-6">
-          {navItems.map((item, idx) => {
-            const isActive = pathname === "/" ? pathname === item?.href : pathname.startsWith(item?.href) && item?.href !== "/";
-            return (
-              <motion.div
-                key={item.href}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * (idx + 1) }}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link
-                    href={item.href}
-                    className={`px-3 py-1 rounded-md transition-colors ${
-                      isActive
-                        ? "bg-[#5B72B5] font-medium"
-                        : "hover:bg-[#5B72B5]/60"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </nav>
 
         {/* Profile + Logout */}
         <motion.div

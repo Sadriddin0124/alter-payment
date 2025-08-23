@@ -4,9 +4,17 @@ import NumberInput from "./number-input";
 import PasswordInput from "./password-input";
 import Search from "./search";
 import YearRangeInput from "./year-range-input";
+import JshshirInput from "./jshshir-input";
 
 interface Props {
-  type?: "tel" | "text" | "number" | "password" | "search" | "year-range";
+  type?:
+    | "tel"
+    | "text"
+    | "number"
+    | "password"
+    | "search"
+    | "year-range"
+    | "jshshir";
   onChange: (value: string) => void;
   value: string;
   placeholder?: string;
@@ -23,10 +31,14 @@ const Input = ({ type = "text", onChange, value, placeholder }: Props) => {
           value={value}
           onChange={onChange}
           className={className}
-
         />
       ) : type === "number" ? (
-        <NumberInput value={value} onChange={onChange} className={className} placeholder={placeholder}/>
+        <NumberInput
+          value={value}
+          onChange={onChange}
+          className={className}
+          placeholder={placeholder}
+        />
       ) : type === "password" ? (
         <PasswordInput
           id="password"
@@ -36,8 +48,14 @@ const Input = ({ type = "text", onChange, value, placeholder }: Props) => {
         />
       ) : type === "search" ? (
         <Search value={value} onChange={onChange} className={className} />
+      ) : type === "jshshir" ? (
+        <JshshirInput value={value} onChange={onChange} className={className} />
       ) : type === "year-range" ? (
-        <YearRangeInput value={value} onChange={onChange} className={className} />
+        <YearRangeInput
+          value={value}
+          onChange={onChange}
+          className={className}
+        />
       ) : (
         <input type="text" />
       )}
