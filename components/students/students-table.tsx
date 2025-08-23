@@ -75,6 +75,7 @@ export default function StudentsTable({ page, setPage }: Props) {
   const { data: studentsData, isFetching } = useQuery<IPaginatedStudent>({
     queryKey: ["students", page, id, Object.values(filterData)],
     queryFn: () => fetchStudents(Number(id), filterData),
+    enabled: !!id,
   });
 
   useEffect(() => {

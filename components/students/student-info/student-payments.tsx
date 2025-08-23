@@ -13,39 +13,15 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
-const payments = [
-  {
-    required: 16000000,
-    deadline: "29.02.2025",
-    paid: 6000000,
-    date: "22.02.2025",
-  },
-  {
-    required: 16000000,
-    deadline: "29.02.2025",
-    paid: 6000000,
-    date: "22.02.2025",
-  },
-  {
-    required: 16000000,
-    deadline: "29.02.2025",
-    paid: 6000000,
-    date: "22.02.2025",
-  },
-  {
-    required: 16000000,
-    deadline: "29.02.2025",
-    paid: 6000000,
-    date: "22.02.2025",
-  },
-];
-
 export default function StudentPayments() {
   const { data: payments } = useQuery({
     queryKey: ["payments"],
     queryFn: () => fetchStudentPayment({}),
   });
+
+  console.log(payments);
   
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,7 +48,7 @@ export default function StudentPayments() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {payments.map((p, idx) => (
+              {/* {payments.map((p, idx) => (
                 <motion.tr
                   key={idx}
                   initial={{ opacity: 0, y: 10 }}
@@ -84,7 +60,7 @@ export default function StudentPayments() {
                   <TableCell>{formatCurrency(p.paid)}</TableCell>
                   <TableCell>{p.date}</TableCell>
                 </motion.tr>
-              ))}
+              ))} */}
             </TableBody>
           </Table>
         </TableContainer>

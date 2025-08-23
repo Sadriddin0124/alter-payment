@@ -131,7 +131,7 @@ export default function YearTable({ setPage, page }: Props) {
         </TableBody>
       </Table>
       {isFetching && eduYears.length === 0 && <TableSkeleton />}
-      {isFetching && (
+      {isFetching && eduYears.length !== 0 && (
         <div ref={observerRef} className="w-full flex justify-center pt-6">
           <CircularProgress sx={{ color: "#5B72B5" }} />
         </div>
