@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchStudentPayment } from "@/lib/actions/students.action";
+import { IStudentPaymentSplits } from "@/lib/types/student.types";
 import { formatCurrency } from "@/lib/utils";
 import {
   Table,
@@ -10,18 +10,14 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 
-export default function StudentPayments() {
-  const { data: payments } = useQuery({
-    queryKey: ["payments"],
-    queryFn: () => fetchStudentPayment({}),
-  });
+type Props = {
+  data: IStudentPaymentSplits[];
+};
 
-  console.log(payments);
-  
-
+export default function StudentPayments({ data }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,24 +39,24 @@ export default function StudentPayments() {
                   To’langan summa
                 </TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>
-                  To’langan sana
+                  Qolgan summa
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* {payments.map((p, idx) => (
+              {data.map((p, idx) => (
                 <motion.tr
                   key={idx}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <TableCell>{formatCurrency(p.required)}</TableCell>
-                  <TableCell>{p.deadline}</TableCell>
-                  <TableCell>{formatCurrency(p.paid)}</TableCell>
-                  <TableCell>{p.date}</TableCell>
+                  <TableCell>{formatCurrency(Number(p.amount))}</TableCell>
+                  <TableCell>{format(new Date(p.payment_date), "dd.MM.yyyy")}</TableCell>
+                  <TableCell>{formatCurrency(Number(p.amount) - Number(p.left))}</TableCell>
+                  <TableCell>{formatCurrency(Number(p.left))}</TableCell>
                 </motion.tr>
-              ))} */}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

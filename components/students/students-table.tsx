@@ -2,16 +2,24 @@
 
 import { motion } from "framer-motion";
 import {
+  CircularProgress,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
 } from "@mui/material";
 import Typography from "../ui/typography";
 import Search from "../ui/inputs/search";
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Badge from "../ui/badge";
 import MyCheckbox from "../ui/checkbox";
 import { useFormContext, useFieldArray } from "react-hook-form";
@@ -19,33 +27,7 @@ import { useRouter } from "next/router";
 import { IPaginatedStudent, IStudentList } from "@/lib/types/student.types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStudents } from "@/lib/actions/students.action";
-
-const data = [
-  {
-    id: 1,
-    name: "Umidbek",
-    phone: "+998 99 999 99 99",
-    jshshir: "1234567",
-    contract: "1000000",
-    paid: "500000",
-  },
-  {
-    id: 2,
-    name: "Umidbek",
-    phone: "+998 99 999 99 99",
-    jshshir: "1234567",
-    contract: "1000000",
-    paid: "500000",
-  },
-  {
-    id: 3,
-    name: "Umidbek",
-    phone: "+998 99 999 99 99",
-    jshshir: "1234567",
-    contract: "1000000",
-    paid: "500000",
-  },
-];
+import TableSkeleton from "../ui/table-skeleton";
 
 interface Props {
   page: number;
@@ -130,17 +112,17 @@ export default function StudentsTable({ page, setPage }: Props) {
   };
 
   const toggleAll = () => {
-    if (selected.length === data.length) {
+    if (selected.length === students.length) {
       // clear all
       remove();
     } else {
       // select all
       remove();
-      data.forEach((student) => append({ id: student.id }));
+      students.forEach((student) => append({ id: student.id }));
     }
   };
 
-  const isAllChecked = selected.length === data.length;
+  const isAllChecked = selected.length === students.length;
 
   return (
     <motion.div
@@ -152,12 +134,11 @@ export default function StudentsTable({ page, setPage }: Props) {
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
           <Typography variant="h5">Talabalar roʻyxati</Typography>
-          <Badge>{data.length} ta talaba</Badge>
+          <Badge>{studentsData?.count ?? 0} ta talaba</Badge>
         </div>
         <Search value={search} onChange={setSearch} placeholder="Qidirish" />
       </div>
 
-      <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
@@ -183,9 +164,9 @@ export default function StudentsTable({ page, setPage }: Props) {
               return (
                 <motion.tr
                   key={student.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
+                  // initial={{ opacity: 0, y: 10 }}
+                  // animate={{ opacity: 1, y: 0 }}
+                  // transition={{ delay: idx * 0.1 }}
                   className="cursor-pointer"
                   onClick={() =>
                     router.push(`/edu-years/info?id=${student.id}`)
@@ -211,7 +192,13 @@ export default function StudentsTable({ page, setPage }: Props) {
             })}
           </TableBody>
         </Table>
-      </TableContainer>
+        {isFetching && students.length === 0 && <TableSkeleton />}
+        {isFetching && students.length !== 0 && (
+          <div className="w-full flex justify-center pt-6">
+            <CircularProgress sx={{ color: "#5B72B5" }} />
+          </div>
+        )}
+        <div ref={observerRef} />
     </motion.div>
   );
 }

@@ -3,66 +3,65 @@ import Typography from "@/components/ui/typography";
 import { formatCurrency } from "@/lib/utils";
 import React from "react";
 import StudentPaymentCard from "./student-payment-card";
+import { IStudentList } from "@/lib/types/student.types";
 
-const student = {
-  name: "Azizbek Ergashev",
-  group: "21-IT-1-guruh",
-  phone: "+998 90 123 45 68",
-  direction: "Dasturiy Injenering",
-  contract: 12000000,
-  paid: 6000000,
-  debt: 6000000,
+type Props = {
+  student: IStudentList;
 };
 
-const StudentDetails = () => {
+const StudentDetails = ({ student }: Props) => {
   const payments = [
     {
       label: "Kontrakt summasi",
-      value: student.contract,
+      value: student?.contract ?? 0,
       color: "#6E8AC3",
     },
     {
       label: "To'langan summa",
-      value: student.paid,
+      value: student?.total_paid ?? 0,
       color: "#12B76A",
     },
     {
       label: "Qarz summasi",
-      value: student.debt,
+      value: student?.left ?? 0,
       color: "#F04438",
     },
   ];
-  
+
+  if (!student) return null;
+
   return (
     <div className="rounded-2xl shadow-md p-6 flex flex-col gap-4 max-w-[400px] w-full border border-gray-200">
       <div className="flex items-center gap-4">
         <UserAvatar />
         <div>
-          <Typography variant="h5">{student.name}</Typography>
-          <Typography variant="h7" color="gray">
+          <Typography variant="h5">{student.full_name}</Typography>
+          {/* <Typography variant="h7" color="gray">
             {student.group}
-          </Typography>
+          </Typography> */}
         </div>
       </div>
 
-      <div className="mt-2 space-y-2 text-sm">
-        <div className="flex flex-col gap-3">
-          <Typography variant="h6" className="font-medium">
-            Telefon raqami
-          </Typography>
-          <Typography variant="h7" color="gray">
-            {student.phone}
-          </Typography>
-        </div>
-        <div className="flex flex-col gap-3">
+      {student.phone_number && <div className=" space-y-2 text-sm">
+        {student?.phone_number && (
+          <div className="flex flex-col gap-3">
+            <Typography variant="h6" className="font-medium">
+              Telefon raqami
+            </Typography>
+            <Typography variant="h7" color="gray">
+              {student.phone_number}
+            </Typography>
+          </div>
+        )}
+        {/* <div className="flex flex-col gap-3">
           <Typography variant="h6" className="font-medium">
             Yo’nalish
           </Typography>
           <Typography variant="h7" color="gray">
             {student.direction}
           </Typography>
-        </div>
-      </div>
+        </div> */}
+      </div>}
 
       {/* Contract info */}
       <div className="mt-6 space-y-3 text-sm">

@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        await $api.get("/moderators/me", {
+        await $api.get("/user/me/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

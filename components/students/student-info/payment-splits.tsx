@@ -1,5 +1,6 @@
 import Input from "@/components/ui/inputs/input";
 import SelectDate from "@/components/ui/select-date";
+import { IStudentPaymentSplits } from "@/lib/types/student.types";
 import { useEffect, useState } from "react";
 import {
   useFormContext,
@@ -8,14 +9,10 @@ import {
   FieldErrors,
 } from "react-hook-form";
 
-type Installment = {
-  amount: number | string;
-  payment_date: string;
-};
 
 type FormValues = {
-  price: number;
-  installments: Installment[];
+  contract: number;
+  installment_payments: IStudentPaymentSplits[];
 };
 
 type Props = {
@@ -34,29 +31,30 @@ export default function PaymentSplits({ count = 3 }: Props) {
 
   const { fields, replace } = useFieldArray({
     control,
-    name: "installments", // ✅ keyof FormValues
+    name: "installment_payments", // ✅ keyof FormValues
   });
 
-  const price = Number(watch("price") || 0);
-  const installments = watch("installments") || [];
+  const contract = Number(watch("contract") || 0);
+  const installment_payments = watch("installment_payments") || [];
 
   const [lockedIndexes, setLockedIndexes] = useState<number[]>([]);
 
-  // ✅ Always regenerate splits when count/price changes
+  // ✅ Always regenerate splits when count/contract changes
   useEffect(() => {
-    if (!count || !price) return;
+    if (!count || !contract || fields.length === count) return;
 
-    const each = Math.floor(price / count);
-    const rem = price % count;
+    const each = Math.floor(contract / count);
+    const rem = contract % count;
 
-    const newVals: Installment[] = Array.from({ length: count }, (_, i) => ({
-      amount: i === count - 1 ? each + rem : each,
-      payment_date: "",
+    const newVals: IStudentPaymentSplits[] = Array.from({ length: count }, (_, i) => ({
+      amount: i === count - 1 ? String(each + rem) : String(each),
+      payment_date: fields[i]?.payment_date || "",
+      left: 0,
     }));
 
     replace(newVals); // ensures fields.length === count
     setLockedIndexes([]); // reset locked indexes
-  }, [count, price, replace]);
+  }, [count, contract, replace, fields]);
 
   // ✅ Handle manual amount changes
   const handleAmountChange = (index: number, value: string) => {
@@ -69,10 +67,10 @@ export default function PaymentSplits({ count = 3 }: Props) {
       prev.includes(index) ? prev : [...prev, index]
     );
 
-    setValue(`installments.${index}.amount`, updatedAmount);
+    setValue(`installment_payments.${index}.amount`, updatedAmount?.toString());
 
-    const current = [...installments];
-    current[index] = { ...current[index], amount: updatedAmount };
+    const current = [...installment_payments];
+    current[index] = { ...current[index], amount: updatedAmount?.toString() };
 
     const locked = [...lockedIndexes, index].filter(
       (item, pos, self) => self.indexOf(item) === pos
@@ -83,22 +81,22 @@ export default function PaymentSplits({ count = 3 }: Props) {
       return acc + (isNaN(amt) ? 0 : amt);
     }, 0);
 
-    const remaining = price - totalLocked;
+    const remaining = contract - totalLocked;
     const allIndexes = Array.from({ length: count }, (_, i) => i);
     const autoIndexes = allIndexes.filter((i) => !locked.includes(i));
 
     if (remaining < 0) {
       autoIndexes.forEach((i) =>
-        setValue(`installments.${i}.amount`, "")
+        setValue(`installment_payments.${i}.amount`, "")
       );
 
-      setError("installments", {
+      setError("installment_payments", {
         type: "manual",
         message: "Toʻlov summasi ortib ketdi",
       });
       return;
     } else {
-      clearErrors("installments");
+      clearErrors("installment_payments");
     }
 
     const base = Math.floor(remaining / autoIndexes.length);
@@ -106,14 +104,14 @@ export default function PaymentSplits({ count = 3 }: Props) {
 
     autoIndexes.forEach((i, j) => {
       const final = base + (j === autoIndexes.length - 1 ? rem : 0);
-      setValue(`installments.${i}.amount`, final);
+      setValue(`installment_payments.${i}.amount`, final?.toString());
     });
   };
 
   // ✅ Error casting for per-field errors
-  let fieldErrors: FieldErrors<Installment>[] = [];
-  if (Array.isArray(errors.installments)) {
-    fieldErrors = errors.installments as FieldErrors<Installment>[];
+  let fieldErrors: FieldErrors<IStudentPaymentSplits>[] = [];
+  if (Array.isArray(errors.installment_payments)) {
+    fieldErrors = errors.installment_payments as FieldErrors<IStudentPaymentSplits>[];
   }
 
   return (
@@ -122,7 +120,7 @@ export default function PaymentSplits({ count = 3 }: Props) {
         <div key={field.id} className="flex gap-3 items-center">
           {count > 1 && (
             <Controller
-              name={`installments.${index}.amount`}
+              name={`installment_payments.${index}.amount`}
               control={control}
               render={({ field }) => (
                 <Input
@@ -142,7 +140,7 @@ export default function PaymentSplits({ count = 3 }: Props) {
           )}
 
           <Controller
-            name={`installments.${index}.payment_date`}
+            name={`installment_payments.${index}.payment_date`}
             control={control}
             rules={{ required: "Toʻlov kunini kiriting" }}
             render={({ field }) => (
@@ -160,9 +158,9 @@ export default function PaymentSplits({ count = 3 }: Props) {
         </div>
       ))}
 
-      {errors.installments?.message && (
+      {errors.installment_payments?.message && (
         <p className="text-red-500 text-sm font-medium">
-          {errors.installments.message as string}
+          {errors.installment_payments.message as string}
         </p>
       )}
     </div>
