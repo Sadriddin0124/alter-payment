@@ -9,6 +9,8 @@ import { login } from "@/lib/actions/auth.action";
 import { useRouter } from "next/navigation";
 import { ILogin } from "@/lib/types/auth.types";
 import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
+import { IError } from "@/lib/types/general.types";
 
 interface Props {
   setIsLogin: Dispatch<SetStateAction<boolean>>;
@@ -35,10 +37,12 @@ export default function LoginCard({ setIsLogin }: Props) {
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
       router.push("/edu-years");
+      toast.success("Muvaffaqiyatli tizimga kirdingiz");
     },
-    onError: (error) => {
-      console.error("Login error:", error);
-    },
+    onError: (error: IError) => {
+       const err = error?.response?.data?.errors?.non_field_errors?.[0]
+       toast.error(err || "Telefon raqam yoki parol xato");
+     },
   });
 
   const onSubmit = (data: ILogin) => {

@@ -8,3 +8,7 @@ export interface PaginationResponse<T> {
   previous: string;
   results: T[];
 }
+
+export interface IError {
+  response: { data: { errors: { non_field_errors: [string] } } };
+}

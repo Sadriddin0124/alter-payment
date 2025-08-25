@@ -1,45 +1,49 @@
-import { useAppData } from "@/components/providers/me-provider";
-import StudentDetails from "@/components/student-info/student-details";
-import StudentPayments from "@/components/student-info/student-payments";
-import Typography from "@/components/ui/typography";
-import {
-  fetchStudent,
-  fetchStudentPayment,
-} from "@/lib/actions/students.action";
-import { IStudentPayments } from "@/lib/types/student.types";
-import { useQuery } from "@tanstack/react-query";
+"use client";
+
 import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import LoginBg from "@/public/images/login.svg";
+import LoginCard from "@/components/login/login-card";
+import RegisterCard from "@/components/login/register-card";
 
-const StudentInfo = () => {
-  const { me } = useAppData();
-
-  const id = me?.id;
-
-  const { data: student } = useQuery({
-    queryKey: ["student-info"],
-    queryFn: () => fetchStudent(Number(id)),
-    enabled: !!id,
-  });
-
-  const { data: payments } = useQuery<IStudentPayments[]>({
-    queryKey: ["payments", id],
-    queryFn: () => fetchStudentPayment({ student: Number(id) }),
-    enabled: !!id,
-  });
-
-  return (
-    <div className="flex flex-col gap-8 pt-8 w-full">
-      <div className="flex items-center gap-4 justify-between">
-        <Typography variant="h1">
-          Talaba ma’lumotlari
-        </Typography>
-      </div>
-      <div className="flex gap-6 items-start w-full">
-        <StudentDetails student={student}  />
-        <StudentPayments data={payments?.[0]?.installment_payments ?? []} />
-      </div>
-    </div>
-  );
+const cardVariants = {
+  initial: { opacity: 0, y: 12, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit:    { opacity: 0, y: -12, scale: 0.98 },
 };
 
-export default StudentInfo;
+export default function Login() {
+  const [isLogin, setIsLogin] = React.useState(true);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white overflow-hidden">
+      <Image
+        src={LoginBg}
+        alt="login"
+        width={2000}
+        height={1000}
+        priority
+        className="w-full h-screen object-cover absolute inset-0"
+      />
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={isLogin ? "login" : "register"}
+          variants={cardVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ type: "spring", stiffness: 260, damping: 24 }}
+          className="relative z-[101] w-full max-w-[520px]"
+        >
+          {isLogin ? (
+            <LoginCard setIsLogin={setIsLogin} />
+          ) : (
+            <RegisterCard setIsLogin={setIsLogin} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}

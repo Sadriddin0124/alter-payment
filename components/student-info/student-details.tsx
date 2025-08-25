@@ -28,21 +28,19 @@ const StudentDetails = ({ student }: Props) => {
     },
   ];
 
-  if (!student) return null;
-
   return (
     <div className="rounded-2xl shadow-md p-6 flex flex-col gap-4 max-w-[400px] w-full border border-gray-200">
       <div className="flex items-center gap-4">
         <UserAvatar />
         <div>
-          <Typography variant="h5">{student.full_name}</Typography>
+          <Typography variant="h5">{student?.full_name}</Typography>
           {/* <Typography variant="h7" color="gray">
             {student.group}
           </Typography> */}
         </div>
       </div>
 
-      {student.phone_number && <div className=" space-y-2 text-sm">
+      {student?.phone_number && <div className=" space-y-2 text-sm">
         {student?.phone_number && (
           <div className="flex flex-col gap-3">
             <Typography variant="h6" className="font-medium">

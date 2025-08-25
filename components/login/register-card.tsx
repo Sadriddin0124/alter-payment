@@ -4,10 +4,12 @@ import { useForm, Controller } from "react-hook-form";
 import Button from "../ui/button";
 import Input from "../ui/inputs/input";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/lib/actions/auth.action";
+import { login, register } from "@/lib/actions/auth.action";
 import { useRouter } from "next/router";
 import { IRegister } from "@/lib/types/auth.types";
 import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
+import { IError } from "@/lib/types/general.types";
 
 interface Props {
   setIsLogin: Dispatch<SetStateAction<boolean>>;
@@ -15,7 +17,11 @@ interface Props {
 
 export default function RegisterCard({ setIsLogin }: Props) {
   const router = useRouter();
-  const { control, handleSubmit, formState: { errors } } = useForm<IRegister>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IRegister>({
     defaultValues: {
       phone_number: "",
       password: "",
@@ -24,19 +30,22 @@ export default function RegisterCard({ setIsLogin }: Props) {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: login,
+    mutationFn: register,
     onSuccess: (data) => {
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
       router.push("/edu-years");
+      toast.success("Muvaffaqiyatli tizimga kirdingiz");
     },
-    onError: (error) => {
-      console.error("Login error:", error);
+
+    onError: (error: IError) => {
+      const err = error?.response?.data?.errors?.non_field_errors?.[0]
+      toast.error(err || "Telefon raqam yoki parol xato");
     },
   });
 
   const onSubmit = (data: IRegister) => {
-    mutate({...data, phone_number: data?.phone_number?.replace(/\D/g, '')});
+    mutate({ ...data, phone_number: data?.phone_number?.replace(/\D/g, "") });
   };
 
   return (
@@ -60,13 +69,11 @@ export default function RegisterCard({ setIsLogin }: Props) {
             rules={{ required: "Telefon raqamni kiriting" }}
             render={({ field }) => <Input {...field} type="tel" />}
           />
-          {
-            errors.phone_number && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.phone_number.message}
-              </p>
-            )
-          }
+          {errors.phone_number && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.phone_number.message}
+            </p>
+          )}
         </div>
 
         <div>
@@ -79,13 +86,11 @@ export default function RegisterCard({ setIsLogin }: Props) {
             rules={{ required: "JSHSHIR raqamni kiriting" }}
             render={({ field }) => <Input {...field} type="jshshir" />}
           />
-          {
-            errors.jshshir && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.jshshir.message}
-              </p>
-            )
-          }
+          {errors.jshshir && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.jshshir.message}
+            </p>
+          )}
         </div>
 
         {/* Parol */}
@@ -97,15 +102,15 @@ export default function RegisterCard({ setIsLogin }: Props) {
             name="password"
             control={control}
             rules={{ required: "Parolni kiriting" }}
-            render={({ field }) => <Input {...field} type="password" placeholder="Parol" />}
+            render={({ field }) => (
+              <Input {...field} type="password" placeholder="Parol" />
+            )}
           />
-          {
-            errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )
-          }
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         {/* Parolni tasdiqlash */}
@@ -117,15 +122,15 @@ export default function RegisterCard({ setIsLogin }: Props) {
             name="confirm_password"
             control={control}
             rules={{ required: "Parolni kiriting" }}
-            render={({ field }) => <Input {...field} type="password" placeholder="Parol" />}
+            render={({ field }) => (
+              <Input {...field} type="password" placeholder="Parol" />
+            )}
           />
-          {
-            errors.confirm_password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.confirm_password.message}
-              </p>
-            )
-          }
+          {errors.confirm_password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirm_password.message}
+            </p>
+          )}
         </div>
 
         {/* Submit button */}
@@ -133,9 +138,9 @@ export default function RegisterCard({ setIsLogin }: Props) {
           Kirish
         </Button>
 
-         {/* Inline register prompt */}
+        {/* Inline register prompt */}
         <div className="mt-6 text-center flex justify-center items-center gap-2 text-sm text-gray-600">
-            Akkauntingiz bormi?{" "}
+          Akkauntingiz bormi?{" "}
           <p
             onClick={() => setIsLogin(true)}
             className="font-medium text-primary hover:underline focus:underline cursor-pointer"
