@@ -28,6 +28,8 @@ import { IPaginatedStudent, IStudentList } from "@/lib/types/student.types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStudents } from "@/lib/actions/students.action";
 import TableSkeleton from "../ui/table-skeleton";
+import { TableNotFoundRow } from "../ui/table-not-found";
+import { queryClient } from "../providers/react-query-provider";
 
 interface Props {
   page: number;
@@ -139,25 +141,32 @@ export default function StudentsTable({ page, setPage }: Props) {
         <Search value={search} onChange={setSearch} placeholder="Qidirish" />
       </div>
 
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>
-                <MyCheckbox value={isAllChecked} onChange={toggleAll} />
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>T/R</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Ism va Familiya</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Telefon raqami</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>JSHSHIR</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>
-                Kontrakt summasi
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Toʻlangan summa</TableCell>
-            </TableRow>
-          </TableHead>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ fontWeight: "bold" }}>
+              <MyCheckbox value={isAllChecked} onChange={toggleAll} />
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>T/R</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Ism va Familiya</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Telefon raqami</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>JSHSHIR</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Kontrakt summasi</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Toʻlangan summa</TableCell>
+          </TableRow>
+        </TableHead>
 
-          <TableBody>
-            {students?.map((student, idx) => {
+        <TableBody>
+          {!isFetching && students?.length === 0 ? (
+            <TableNotFoundRow
+              colSpan={2}
+              onReload={() => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                setPage(1);
+              }}
+            />
+          ) : (
+            students?.map((student, idx) => {
               const isChecked = selected.some(
                 (s: { id: number }) => s.id === student.id
               );
@@ -189,16 +198,17 @@ export default function StudentsTable({ page, setPage }: Props) {
                   <TableCell>-</TableCell>
                 </motion.tr>
               );
-            })}
-          </TableBody>
-        </Table>
-        {isFetching && students.length === 0 && <TableSkeleton />}
-        {isFetching && students.length !== 0 && (
-          <div className="w-full flex justify-center pt-6">
-            <CircularProgress sx={{ color: "#5B72B5" }} />
-          </div>
-        )}
-        <div ref={observerRef} />
+            })
+          )}
+        </TableBody>
+      </Table>
+      {isFetching && students.length === 0 && <TableSkeleton />}
+      {isFetching && students.length !== 0 && (
+        <div className="w-full flex justify-center pt-6">
+          <CircularProgress sx={{ color: "#5B72B5" }} />
+        </div>
+      )}
+      <div ref={observerRef} />
     </motion.div>
   );
 }

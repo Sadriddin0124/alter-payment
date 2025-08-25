@@ -27,9 +27,9 @@ export default function UploadContract({
     mutationFn: async (file: File) => {
       setProgress(0); // reset per upload
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("excel_file", file);
 
-      const res = await $api.post(`/import/students/`, formData, {
+      const res = await $api.post(`/import/payments/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (e) => {
           // Some servers don't send total — guard it.

@@ -27,6 +27,8 @@ import { IEduYears, IPaginatedEduYears } from "@/lib/types/edu-year.types";
 import TableSkeleton from "../ui/table-skeleton";
 import EduYearsModal from "./edu-years-modal";
 import EduYearsDelete from "./edu-years-delete";
+import { TableNotFoundRow } from "../ui/table-not-found";
+import { queryClient } from "../providers/react-query-provider";
 
 interface Props {
   setPage: Dispatch<SetStateAction<number>>;
@@ -40,7 +42,7 @@ export default function YearTable({ setPage, page }: Props) {
   const router = useRouter();
 
   const filterData = useMemo(() => {
-    return { page, q: search, page_size: 10 };
+    return { page, search, page_size: 10 };
   }, [search, page]);
 
   const { data: eduYearsData, isFetching } = useQuery<IPaginatedEduYears>({
@@ -108,8 +110,15 @@ export default function YearTable({ setPage, page }: Props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {!isFetching &&
-            eduYears?.length !== 0 &&
+          {!isFetching && eduYears?.length === 0 ? (
+            <TableNotFoundRow
+              colSpan={2}
+              onReload={() => {
+                queryClient.invalidateQueries({ queryKey: ["edu-years"] });
+                setPage(1);
+              }}
+            />
+          ) : (
             eduYears.map((year, idx) => (
               <motion.tr
                 key={year.id}
@@ -121,13 +130,17 @@ export default function YearTable({ setPage, page }: Props) {
               >
                 <TableCell>{year.edu_year}</TableCell>
                 <TableCell align="right">
-                  <div className="flex full items-center gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex full items-center gap-2 justify-end"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <EduYearsModal item={year} setPage={setPage} />
                     <EduYearsDelete id={year.id} setPage={setPage} />
                   </div>
                 </TableCell>
               </motion.tr>
-            ))}
+            ))
+          )}
         </TableBody>
       </Table>
       {isFetching && eduYears.length === 0 && <TableSkeleton />}

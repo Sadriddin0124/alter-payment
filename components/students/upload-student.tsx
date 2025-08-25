@@ -7,6 +7,7 @@ import { FiUpload } from "react-icons/fi";
 import { $api } from "@/lib/api/api";
 import { toast } from "sonner";
 import Button from "../ui/button";
+import { useRouter } from "next/router";
 
 type Props = {
   endpoint?: string;   // upload endpoint
@@ -23,11 +24,16 @@ export default function UploadStudents({
   const inputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0); // 0..100
 
+  const router = useRouter()
+
+  const id = router.query.id
+
   const mutation = useMutation({
     mutationFn: async (file: File) => {
       setProgress(0); // reset per upload
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("education_year", id?.toString() || "");
+      formData.append("excel_file", file);
 
       const res = await $api.post(`/import/students/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
